@@ -1,0 +1,30 @@
+---
+name: Get Sonarqube latest release version
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: versioning
+        name: Check latest release version
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: SonarSource/sonarqube
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Write version
+        run: echo "SONARQUBE_DEFAULT_VERSION=${{ steps.versioning.outputs.release }}" > DEFAULTS
+
+      - name: Commit changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "chore(DEFAULTS): auto-update"
+          git push
+...
