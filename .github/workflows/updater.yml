@@ -44,4 +44,6 @@ jobs:
         if: steps.pr.outputs.pull-request-operation == 'created'
         run: |
           gh pr merge --squash --auto "${{ steps.pr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ GH_TOKEN }}
 ...
