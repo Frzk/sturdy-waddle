@@ -21,24 +21,24 @@ jobs:
       - name: Write version
         run: echo "SONARQUBE_DEFAULT_VERSION=${{ steps.versioning.outputs.release }}" > DEFAULTS
 
-     #- name: Commit changes
-     #  run: |
-     #    git config user.name github-actions
-     #    git config user.email github-actions@github.com
-     #    git add .
-     #    git commit -m "chore(DEFAULTS): auto-update"
-     #    git push
-
       - id: pr
         name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           branch: "deps/auto/version_update"
-          title: "(auto) update Sonarqube default version"
-          body: "This is an automated pull-request to update Sonarqube default version to `${{ steps.versioning.outputs.release }}`."
-          commit-message: "auto(DEFAULTS): update default version to ${{ steps.versioning.outputs.release }}"
+          delete-branch: true
+          title: "(auto) update Sonarqube default version to ${{ steps.versioning.outputs.release }}"
+          body: |
+            This is an automated pull-request to update Sonarqube default version to `${{ steps.versioning.outputs.release }}`.
+          labels: |
+            automated pr
+            versioning
+          commit-message: "auto(versioning): update default version to ${{ steps.versioning.outputs.release }}"
+          assignees: "${{ vars.AUTO_ASSIGNEES }}"
+          reviewers: "${{ vars.AUTO_REVIEWERS }}"
           # committer: ${{ username }} <${{ email }}>
           # author: ${{ username }} <${{ email }}>
+
 
       - name: Configure Pull Request
         if: steps.pr.outputs.pull-request-operation == 'created'
