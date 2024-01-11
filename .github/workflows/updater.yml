@@ -45,5 +45,5 @@ jobs:
         run: |
           gh pr merge --squash --auto --delete-branch "${{ steps.pr.outputs.pull-request-number }}"
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ...
