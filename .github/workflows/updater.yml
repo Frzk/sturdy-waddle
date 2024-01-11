@@ -1,30 +1,48 @@
 ---
-name: Get Sonarqube latest release version
+name: Update Sonarqube version
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  version_update:
+    name: Get Sonarqube latest version
     runs-on: ubuntu-latest
 
     steps:
       - id: versioning
-        name: Check latest release version
+        name: Get latest release version
         uses: pozetroninc/github-action-get-latest-release@master
         with:
           repository: SonarSource/sonarqube
 
-      - name: Checkout source
-        uses: actions/checkout@v4
+     #- name: Checkout source
+     #  uses: actions/checkout@v4
 
       - name: Write version
         run: echo "SONARQUBE_DEFAULT_VERSION=${{ steps.versioning.outputs.release }}" > DEFAULTS
 
-      - name: Commit changes
+     #- name: Commit changes
+     #  run: |
+     #    git config user.name github-actions
+     #    git config user.email github-actions@github.com
+     #    git add .
+     #    git commit -m "chore(DEFAULTS): auto-update"
+     #    git push
+
+      - id: pr
+        name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: "deps/auto/version_update"
+          title: "(auto) update Sonarqube default version"
+          body: "This is an automated pull-request to update Sonarqube default version to `${{ steps.versioning.outputs.release }}`."
+          commit-message: "auto(DEFAULTS): update default version to ${{ steps.versioning.outputs.release }}"
+          # committer: ${{ username }} <${{ email }}>
+          # author: ${{ username }} <${{ email }}>
+
+      - id: pr_config
+        name: Configure PR
+        if: steps.pr.outputs.pull-request-operation == 'created'
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "chore(DEFAULTS): auto-update"
-          git push
+          gh pr merge --squash --auto "${{ steps.pr.outputs.pull-request-number }}"
 ...
